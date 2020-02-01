@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const url = 'http://localhost:3010/users';
 
-interface User {
+export interface User {
   name: string;
   surname: string;
   phone: number;
@@ -10,11 +10,15 @@ interface User {
 }
 
 class UsersAPI {
-  request(): Promise<any[]> {
+  public request(): Promise<any[]> {
     return axios.get(url).then(r => r.data);
   }
 
-  create(user: User): Promise<any> {
+  public find(id: string): Promise<User> {
+    return axios.get(`${url}/${id}`).then(r => r.data);
+  }
+
+  public create(user: User): Promise<any> {
     return fetch(url, {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',

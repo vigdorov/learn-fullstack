@@ -1,6 +1,8 @@
 import React from 'react';
 import UsersList from '../users-list';
 import {Props} from './types';
+import UserModal from '../user-modal';
+import {Link} from 'react-router-dom';
 
 const style = {
   border: '1px solid black',
@@ -14,7 +16,7 @@ class Page extends React.PureComponent<Props> {
     this.props.loadUsers();
   }
 
-  public handleCall = () => {
+  private handleCall = () => {
     this.props.handleCall({
       name: 'Petr',
       surname: 'Petrov',
@@ -24,14 +26,25 @@ class Page extends React.PureComponent<Props> {
   }
 
   public render() {
+    const {userId} = this.props.match.params;
+
     return (
       <div>
       page
       <button onClick={this.handleCall}>add user</button>
       {this.props.usersList.map((user: any) => (
-          <div style={style} key={user._id}>{user.name}</div>
+          <div key={user._id} style={style}>
+            <Link
+              to={user._id}
+            >
+              {user.name}
+            </Link>
+          </div>
       ))}
       <UsersList/>
+      {userId && (
+        <UserModal userId={userId}/>
+      )}
     </div>
     );
   }

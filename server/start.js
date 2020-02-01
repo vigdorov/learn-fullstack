@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const express = require('express');
 const MongoClient = require('mongodb').MongoClient;
+const ObjectID = require('mongodb').ObjectID;
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
@@ -12,6 +13,7 @@ const checkUser = user => {
     phone: 'number',
     avatar: 'string',
   };
+
   const strObj = Object.keys(interfaceUser).map(key => {
     return `${key}: ${interfaceUser[key]}`;
   }).join(', ');
@@ -41,17 +43,41 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.get('/users', (reg, res, next) => {
+app.get('/users', (req, res) => {
   MongoClient.connect(url, (err, client) => {
     const db = client.db(dbName);
     const collection = db.collection('users');
+    
+
     collection.find().toArray().then(userList => {
       res.header('Access-Control-Allow-Origin', '*');
       res.send(userList);
       client.close();
-      next();
     });
   });
+});
+
+app.get('/users/:id', (req, res) => {
+  const id = {'_id': new ObjectID(req.params.id)};
+  MongoClient.connect(url, (err, client) => {
+    const db = client.db(dbName);
+    const collection = db.collection('users');
+
+    collection.findOne(id, (err, user) => {
+      if (err) {
+        res.status(400);
+        res.send(err)
+      } else {
+        if (_.isNil(user)) {
+          res.status(404);
+          res.send('Пользователь с указанным id не найден')
+        } else {
+          res.send(user);
+        }
+        
+      }
+    })
+  })
 });
 
 app.post('/users', (req, res) => {
